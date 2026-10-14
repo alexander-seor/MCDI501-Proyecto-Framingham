@@ -36,6 +36,9 @@ formativa-1/
 │   ├── distribucion_chd.png
 │   └── distribuciones_cuantitativas.png
 ├── informe/
+│   ├── informe_formativa_1.tex
+│   ├── informe_formativa_1.pdf
+│   └── logo_unab.png
 ├── notebooks/
 │   └── formativa_1_framingham.ipynb
 └── README.md
@@ -86,8 +89,8 @@ El archivo original no se modifica. Las variables se preparan en una copia denom
 
 - [x] Notebook ejecutable y documentado.
 - [x] Figuras exportadas.
-- [ ] Informe técnico en LaTeX.
-- [ ] Informe final en PDF.
+- [x] Informe técnico en LaTeX.
+- [x] Informe final en PDF.
 
 ## Fuentes
 

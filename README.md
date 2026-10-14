@@ -55,7 +55,7 @@ MCDI501-Framingham/
 - [x] Repositorio y entorno virtual configurados.
 - [x] Dataset seleccionado y almacenado.
 - [x] Formativa 1 desarrollada en un notebook reproducible.
-- [ ] Informe PDF de la Formativa 1.
+- [x] Informe PDF de la Formativa 1.
 - [ ] Sumativa 1.
 - [ ] Fases posteriores.
 
