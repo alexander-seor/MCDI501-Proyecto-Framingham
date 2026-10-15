@@ -34,6 +34,10 @@ MCDI501-Framingham/
 │       └── README.md
 ├── fase-2/
 │   └── sumativa-1/
+│       ├── figuras/
+│       ├── informe/
+│       ├── notebooks/
+│       └── README.md
 ├── fase-3/
 ├── fase-4/
 ├── .gitignore
@@ -56,7 +60,7 @@ MCDI501-Framingham/
 - [x] Dataset seleccionado y almacenado.
 - [x] Formativa 1 desarrollada en un notebook reproducible.
 - [x] Informe PDF de la Formativa 1.
-- [ ] Sumativa 1.
+- [x] Sumativa 1: análisis exploratorio e inferencial, notebook e informe PDF.
 - [ ] Fases posteriores.
 
 ## Entorno de trabajo
