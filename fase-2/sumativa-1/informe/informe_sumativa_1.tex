@@ -116,9 +116,13 @@
 % Guía oficial: carga, estructura, tipos, faltantes, duplicados, inconsistencias y limpieza básica.
 \section{Preparación y carga de datos}
 
-El proyecto estudia factores demográficos, conductuales y clínicos asociados con la ocurrencia de enfermedad coronaria durante diez años. Se utiliza una versión del \textit{Framingham Heart Study} publicada en Kaggle \cite{dileep}, con 4.238 personas y 16 variables. La respuesta \texttt{TenYearCHD} toma el valor 1 cuando se registra el evento y 0 en caso contrario. La pregunta de análisis es: \textit{¿qué diferencias se observan entre quienes desarrollaron y quienes no desarrollaron enfermedad coronaria durante el seguimiento?}
+El proyecto estudia factores demográficos, conductuales y clínicos asociados con la ocurrencia de enfermedad coronaria durante diez años. El estudio de Framingham constituye una referencia para el análisis de factores cardiovasculares (National Heart, Lung, and Blood Institute, s. f.).
 
-El archivo \texttt{framingham.csv} se cargó en Python sin modificarlo. Se verificaron dimensiones, tipos computacionales, valores únicos, rangos, duplicados y codificaciones. No se encontraron filas duplicadas ni valores fuera de las categorías o rangos admisibles. La Tabla~\ref{tab:calidad} resume la ausencia de datos. Cada análisis utiliza casos disponibles e informa su tamaño muestral; no se imputaron valores en esta fase para evitar introducir supuestos no evaluados.
+Para este trabajo se utiliza una versión del \textit{Framingham Heart Study} publicada en Kaggle (Dileep, 2019), con 4.238 personas y 16 variables. La respuesta \texttt{TenYearCHD} toma el valor 1 cuando se registra el evento y 0 en caso contrario. La pregunta de análisis es: \textit{¿qué diferencias se observan entre quienes desarrollaron y quienes no desarrollaron enfermedad coronaria durante el seguimiento?}
+
+El archivo \texttt{framingham.csv} se cargó en Python sin modificarlo. Se verificaron dimensiones, tipos computacionales, valores únicos, duplicados y codificaciones. También se aplicaron intervalos amplios de plausibilidad para detectar errores evidentes de registro. Estos intervalos se utilizaron como control de calidad y no como límites diagnósticos. No se encontraron filas duplicadas ni registros fuera de las categorías o intervalos definidos.
+
+La Tabla~\ref{tab:calidad} resume la ausencia de datos. Cada procedimiento utiliza los casos disponibles para las variables involucradas e informa su tamaño muestral. No se imputaron valores en esta fase, porque ello habría requerido adoptar supuestos sobre el mecanismo de ausencia que todavía no han sido evaluados.
 
 \begin{table}[H]
 \centering
@@ -167,6 +171,15 @@ Glucosa (mg/dL) & 3.850 & 81,97 & 78,00 & 23,96 & 16,00 \\
 \end{tabular}
 \end{table}
 
+La Figura~\ref{fig:distribuciones} permite comparar la forma de las distribuciones y muestra la diferencia entre media y mediana en las variables con mayor asimetría.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{../figuras/figura_2_distribuciones_numericas.png}
+\caption{Distribuciones de las variables numéricas con media y mediana.}
+\label{fig:distribuciones}
+\end{figure}
+
 La respuesta está desbalanceada: 644 personas desarrollaron enfermedad coronaria (15,20\,\%) y 3.594 no la desarrollaron (84,80\,\%). El 31,05\,\% presenta antecedente de hipertensión, 49,41\,\% registra tabaquismo actual y 2,57\,\% tiene diabetes. La Figura~\ref{fig:objetivo} muestra simultáneamente el desbalance y la calidad de información.
 
 \begin{figure}[H]
@@ -178,7 +191,7 @@ La respuesta está desbalanceada: 644 personas desarrollaron enfermedad coronari
 
 \subsection{Relaciones bivariadas}
 
-La matriz de Pearson de la Figura~\ref{fig:correlaciones} identifica relaciones lineales. Presión sistólica y diastólica presentan la asociación más alta ($r=0,78$). Respecto de \texttt{TenYearCHD}, las correlaciones mayores corresponden a edad ($r=0,23$) y presión sistólica ($r=0,22$). Debido a que la respuesta es binaria, estos valores equivalen a correlaciones punto-biseriales; no implican causalidad y pueden omitir relaciones no lineales.
+La matriz de Pearson de la Figura~\ref{fig:correlaciones} identifica relaciones lineales. Presión sistólica y diastólica presentan la asociación más alta ($r=0,78$). Respecto de \texttt{TenYearCHD}, las correlaciones mayores corresponden a edad ($r=0,23$) y presión sistólica ($r=0,22$). Debido a que la respuesta es binaria, estos valores equivalen a correlaciones punto-biseriales; no implican causalidad y pueden omitir relaciones no lineales. Cada coeficiente se calculó con los pares de datos disponibles, por lo que el tamaño muestral puede variar entre correlaciones.
 
 \begin{figure}[H]
 \centering
@@ -187,7 +200,16 @@ La matriz de Pearson de la Figura~\ref{fig:correlaciones} identifica relaciones 
 \label{fig:correlaciones}
 \end{figure}
 
-Los diagramas de caja muestran mayor edad y presión sistólica en el grupo con enfermedad. Para colesterol e IMC existe un solapamiento considerable, mientras glucosa contiene valores extremos. En el análisis categórico, 24,70\,\% de quienes presentan hipertensión desarrolló enfermedad, frente a 10,92\,\% del grupo sin dicho antecedente. En cambio, la diferencia descriptiva según tabaquismo actual es menor (15,9\,\% frente a 14,5\,\%) y debe interpretarse junto con intensidad, duración y edad.
+Los diagramas de caja de la Figura~\ref{fig:cajas} muestran mayor edad y presión sistólica en el grupo con enfermedad. Para colesterol existe un solapamiento considerable, mientras que glucosa presenta valores extremos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.79\textwidth]{../figuras/figura_4_variables_segun_chd.png}
+\caption{Comparación de variables clínicas y demográficas según enfermedad coronaria.}
+\label{fig:cajas}
+\end{figure}
+
+En el análisis categórico, 24,70\,\% de quienes presentan hipertensión desarrolló enfermedad, frente a 10,92\,\% del grupo sin dicho antecedente. La diferencia descriptiva según tabaquismo actual es menor (15,9\,\% frente a 14,5\,\%) y debe interpretarse junto con la intensidad, la duración del consumo y la edad.
 
 % Guía oficial: tres variables numéricas, IC 95 %, justificación e interpretación.
 \section{Estimación de parámetros}
@@ -196,7 +218,7 @@ Se estimaron las medias de edad, presión sistólica y colesterol total. Como la
 \[
 \bar{x}\pm t_{0,975;n-1}\frac{s}{\sqrt{n}}.
 \]
-Los tamaños muestrales son grandes, pero el uso de $t$ mantiene explícita la incertidumbre asociada con la estimación de $s$. La Tabla~\ref{tab:intervalos} presenta los resultados.
+Los tamaños muestrales son grandes, pero el uso de $t$ mantiene explícita la incertidumbre asociada con la estimación de $s$. El procedimiento supone observaciones independientes y una muestra adecuada para representar la población de interés. La Tabla~\ref{tab:intervalos} presenta los resultados.
 
 \begin{table}[H]
 \centering
@@ -215,20 +237,28 @@ Proporción de enfermedad coronaria & 4.238 & 15,20\,\% & 14,15\,\%--16,31\,\% \
 \end{tabular}
 \end{table}
 
-Para la proporción se empleó el intervalo de Wilson, más estable que la aproximación normal simple para respuestas binarias. Los intervalos expresan rangos plausibles para parámetros poblacionales bajo los supuestos del muestreo; no contienen al 95\,\% de las observaciones individuales ni garantizan representatividad fuera de la población estudiada.
+Para la proporción se empleó el intervalo de Wilson, implementado con \textit{statsmodels} (Seabold \& Perktold, 2010). Este método es más estable que la aproximación normal simple para respuestas binarias.
+
+Con un 95\,\% de confianza, la edad media de la población representada por la muestra se encuentra entre 49,33 y 49,84 años. La presión sistólica media se sitúa entre 131,69 y 133,02 mmHg, mientras que el colesterol total medio se encuentra entre 235,37 y 238,07 mg/dL. Para la proporción de enfermedad coronaria, el intervalo compatible con los datos va de 14,15\,\% a 16,31\,\%.
+
+Los intervalos no contienen al 95\,\% de las observaciones individuales ni expresan el riesgo de una persona específica. Su validez depende de la independencia de las observaciones, del procedimiento de muestreo y de la representatividad de la muestra.
 
 % Guía oficial: dos pruebas, H0/H1, alfa, supuestos, ejecución e implicancias.
 \section{Pruebas de hipótesis}
 
-Se fijó $\alpha=0,05$ antes de realizar dos contrastes bilaterales. La significancia se complementó con intervalos y tamaños de efecto.
+Se fijó $\alpha=0,05$ antes de realizar las pruebas. Este umbral limita al 5\,\% la probabilidad de rechazar $H_0$ cuando es verdadera, siempre que se cumplan los supuestos del procedimiento. La prueba de Welch se planteó de forma bilateral. La prueba de chi-cuadrado evalúa una asociación no direccional mediante la cola derecha de su distribución. Los cálculos se realizaron con SciPy (SciPy Community, 2026) y la significancia se complementó con intervalos y tamaños de efecto.
 
 \subsection{Presión sistólica según enfermedad coronaria}
 
-Se planteó $H_0:\mu_{\mathrm{CHD}}=\mu_{\mathrm{sin\ CHD}}$ frente a $H_1:\mu_{\mathrm{CHD}}\neq\mu_{\mathrm{sin\ CHD}}$. Los grupos son independientes y numerosos; sus desviaciones difieren (26,69 frente a 20,46 mmHg), por lo que se aplicó $t$ de Welch. La media fue 143,62 mmHg con enfermedad ($n=644$) y 130,33 mmHg sin enfermedad ($n=3.594$). La diferencia fue 13,29 mmHg, IC 95\,\% $[11,11;15,46]$, con $t=12,015$, $gl=783,9$ y $p<0,001$. Se rechazó $H_0$. El tamaño $d=0,617$ indica una diferencia estandarizada moderada.
+Se planteó $H_0:\mu_{\mathrm{CHD}}=\mu_{\mathrm{sin\ CHD}}$ frente a $H_1:\mu_{\mathrm{CHD}}\neq\mu_{\mathrm{sin\ CHD}}$. Cada fila corresponde a una persona y los grupos son mutuamente excluyentes, por lo que las observaciones se consideran independientes. Las distribuciones presentan asimetría moderada, pero los tamaños muestrales son suficientes para una comparación robusta de medias. Como las desviaciones difieren (26,69 frente a 20,46 mmHg), se aplicó $t$ de Welch, que no exige igualdad de varianzas.
+
+La media fue 143,62 mmHg con enfermedad ($n=644$) y 130,33 mmHg sin enfermedad ($n=3.594$). La diferencia fue 13,29 mmHg, IC 95\,\% $[11,11;15,46]$, con $t=12,015$, $gl=783,9$ y $p<0,001$. Se rechazó $H_0$. El tamaño $d=0,617$ indica una diferencia estandarizada moderada. En términos prácticos, la presión sistólica es una variable relevante para el análisis multivariado posterior.
 
 \subsection{Hipertensión previa y enfermedad coronaria}
 
-Se contrastó $H_0$: ambas variables son independientes, frente a $H_1$: existe asociación. Todas las frecuencias esperadas superaron 199, por lo que se cumple el supuesto de chi-cuadrado. El resultado fue $\chi^2(1)=132,611$, $p<0,001$; se rechazó $H_0$. La magnitud fue baja a moderada ($V$ de Cramér $=0,177$). El riesgo observado fue 24,70\,\% con hipertensión y 10,92\,\% sin hipertensión, con riesgo relativo 2,26 y \textit{odds ratio} 2,68.
+Se contrastó $H_0$: ambas variables son independientes, frente a $H_1$: existe asociación. Cada persona aporta una sola observación y pertenece a una única categoría de cada variable. Todas las frecuencias esperadas superaron 199, por lo que se cumplen los supuestos de independencia de observaciones y suficiencia de frecuencias esperadas.
+
+El resultado fue $\chi^2(1)=132,611$, $p<0,001$; se rechazó $H_0$. La magnitud fue baja a moderada ($V$ de Cramér $=0,177$). El riesgo observado fue 24,70\,\% con hipertensión y 10,92\,\% sin hipertensión, con riesgo relativo 2,26 y \textit{odds ratio} 2,68. En términos prácticos, el antecedente de hipertensión identifica un grupo que requiere mayor atención en el análisis conjunto de factores cardiovasculares.
 
 \begin{figure}[H]
 \centering
@@ -244,29 +274,32 @@ Ambas pruebas describen asociaciones no ajustadas. No demuestran que presión si
 
 El avance consolida un flujo reproducible desde datos crudos hasta evidencia descriptiva e inferencial. Los resultados destacan edad, presión arterial y antecedente de hipertensión como variables relevantes para profundizar el estudio cardiovascular. La incertidumbre se comunicó mediante intervalos y las decisiones inferenciales se acompañaron con tamaños de efecto.
 
-Las limitaciones principales son el diseño observacional, el desbalance de la respuesta, los datos ausentes ---especialmente 9,16\,\% en glucosa--- y la ausencia de ajuste simultáneo por factores de confusión. Como próximos pasos se propone evaluar mecanismos de ausencia, definir un tratamiento reproducible de faltantes, estudiar relaciones multivariadas y comparar modelos predictivos con validación adecuada. Se mantendrá la distinción entre descripción, asociación, predicción y causalidad.
+Las limitaciones principales son el diseño observacional, el desbalance de la respuesta y la ausencia de ajuste simultáneo por factores de confusión.
+
+La mayor proporción de datos faltantes corresponde a glucosa, con 9,16\,\%. Antes de modelar será necesario estudiar el mecanismo de ausencia y definir un tratamiento reproducible que no altere injustificadamente la distribución de esta variable.
+
+Como próximos pasos se propone estudiar relaciones multivariadas y comparar modelos predictivos con validación adecuada. Durante ese proceso se mantendrá la distinción entre descripción, asociación, predicción y causalidad.
 
 % Guía oficial: notebook reproducible y repositorio enlazado.
 \section{Notebook y repositorio GitHub}
 
-El notebook \path{fase-2/sumativa-1/notebooks/sumativa_1_framingham.ipynb} ejecuta 18 celdas de código sin errores, fija la semilla 42, localiza la raíz del proyecto, valida dimensiones y codificaciones y exporta cinco figuras a 300 dpi. Los datos originales permanecen en \path{fase-1/datos/raw/}; las dependencias están declaradas en \path{requirements.txt}. El historial y los entregables se encuentran en \proyRepo.
+El notebook \path{fase-2/sumativa-1/notebooks/sumativa_1_framingham.ipynb} ejecuta 18 celdas de código sin errores, fija la semilla 42, localiza la raíz del proyecto y valida dimensiones, codificaciones e intervalos de plausibilidad. También exporta cinco figuras a 300 dpi. Los datos originales permanecen en \path{fase-1/datos/raw/}; las dependencias están declaradas en \path{requirements.txt}. El historial y los entregables se encuentran en \proyRepo.
 
 % Guía oficial: referencias APA 7 citadas explícitamente.
-\begin{thebibliography}{9}
+\section*{Bibliografía}
+\addcontentsline{toc}{section}{Bibliografía}
 \raggedright
 
-\bibitem{dileep}
-Dileep, A. (2019). \textit{Logistic regression to predict heart disease} [Conjunto de datos]. Kaggle. \url{https://www.kaggle.com/datasets/dileep070/heart-disease-prediction-using-logistic-regression}
+\hangindent=1.27cm\hangafter=1
+Dileep. (2019). \textit{Logistic regression to predict heart disease} [Conjunto de datos]. Kaggle. \url{https://www.kaggle.com/datasets/dileep070/heart-disease-prediction-using-logistic-regression}\par
 
-\bibitem{nhlbi}
-National Heart, Lung, and Blood Institute. (s. f.). \textit{Teaching datasets: Framingham Heart Study}. \url{https://biolincc.nhlbi.nih.gov/teaching/}
+\hangindent=1.27cm\hangafter=1
+National Heart, Lung, and Blood Institute. (s. f.). \textit{Teaching datasets: Framingham Heart Study}. \url{https://biolincc.nhlbi.nih.gov/teaching/}\par
 
-\bibitem{scipy}
-Virtanen, P., et al. (2020). SciPy 1.0: Fundamental algorithms for scientific computing in Python. \textit{Nature Methods, 17}, 261--272. \url{https://doi.org/10.1038/s41592-019-0686-2}
+\hangindent=1.27cm\hangafter=1
+SciPy Community. (2026). \textit{SciPy} (versión 1.18.1) [Software]. \url{https://scipy.org/}\par
 
-\bibitem{statsmodels}
-Seabold, S., \& Perktold, J. (2010). Statsmodels: Econometric and statistical modeling with Python. En \textit{Proceedings of the 9th Python in Science Conference} (pp. 92--96). \url{https://doi.org/10.25080/Majora-92bf1922-011}
-
-\end{thebibliography}
+\hangindent=1.27cm\hangafter=1
+Seabold, S., \& Perktold, J. (2010). Statsmodels: Econometric and statistical modeling with Python. En \textit{Proceedings of the 9th Python in Science Conference} (pp. 92--96). \url{https://doi.org/10.25080/Majora-92bf1922-011}\par
 
 \end{document}
