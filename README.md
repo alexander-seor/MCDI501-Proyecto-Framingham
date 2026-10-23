@@ -10,7 +10,7 @@ El análisis es observacional. Sus resultados permiten describir asociaciones y 
 
 ## Dataset seleccionado
 
-Se utiliza el dataset **Framingham Heart Study**, descargado desde [Kaggle](https://www.kaggle.com/datasets/dileep070/heart-disease-prediction-using-logistic-regression).
+Se utiliza la versión del dataset **Framingham Heart Study** publicada por [Dileep en Kaggle](https://www.kaggle.com/datasets/dileep070/heart-disease-prediction-using-logistic-regression).
 
 - Observaciones: 4.238 personas.
 - Variables: 16.
@@ -18,7 +18,7 @@ Se utiliza el dataset **Framingham Heart Study**, descargado desde [Kaggle](http
 - Codificación de la respuesta: `0` indica que no se desarrolló enfermedad coronaria y `1` indica que sí se desarrolló durante el seguimiento.
 - Contexto: salud cardiovascular.
 
-La documentación general del estudio puede consultarse en los [materiales docentes del NHLBI](https://biolincc.nhlbi.nih.gov/teaching/).
+La documentación del [NHLBI](https://biolincc.nhlbi.nih.gov/teaching/) se utiliza como referencia contextual sobre el Framingham Heart Study y sus conjuntos docentes.
 
 ## Organización del repositorio
 
@@ -39,6 +39,13 @@ MCDI501-Framingham/
 │       ├── notebooks/
 │       └── README.md
 ├── fase-3/
+│   ├── ejercicios/
+│   ├── sumativa-2/
+│   │   ├── figuras/
+│   │   ├── informes/
+│   │   ├── notebooks/
+│   │   └── resultados/
+│   └── README.md
 ├── fase-4/
 ├── .gitignore
 ├── README.md
@@ -46,13 +53,36 @@ MCDI501-Framingham/
 ```
 
 - `fase-1/`: selección, comprensión y caracterización inicial del dataset.
-- `fase-2/`: desarrollo de la Sumativa 1.
-- `fase-3/`: actividades correspondientes a la tercera fase del proyecto.
+- `fase-2/`: análisis exploratorio e inferencial de la Sumativa 1.
+- `fase-3/`: validación interna mediante remuestreo, simulación y análisis de sensibilidad.
 - `fase-4/`: actividades correspondientes a la cuarta fase del proyecto.
-- `datos/raw/`: archivos originales, conservados sin modificaciones.
+- `datos/raw/`: archivo original, conservado sin modificaciones.
 - `notebooks/`: análisis reproducibles realizados en Python.
 - `figuras/`: visualizaciones exportadas desde los notebooks.
-- `informe/`: fuente LaTeX y PDF de cada entrega.
+- `informe/` o `informes/`: fuentes LaTeX y PDF de cada entrega.
+
+## Avance del proyecto
+
+### Fase 1 - Formativa 1
+
+Selección del dataset, definición de la pregunta de análisis, revisión de variables y caracterización inicial.
+
+### Fase 2 - Sumativa 1
+
+Análisis descriptivo e inferencial, intervalos de confianza y pruebas de hipótesis sobre variables asociadas con enfermedad coronaria a diez años.
+
+### Fase 3 - Sumativa 2
+
+Validación interna de los resultados anteriores mediante:
+
+- Bootstrap de medias con intervalos percentil y BCa.
+- Prueba de permutación para la diferencia de presión sistólica según `TenYearCHD`.
+- Bootstrap de cinco correlaciones.
+- Simulación Monte Carlo de cohortes hipotéticas.
+- Análisis de robustez frente a valores extremos.
+- Preparación de resultados y recomendaciones para la Sumativa 3.
+
+Los detalles se encuentran en [`fase-3/README.md`](fase-3/README.md).
 
 ## Estado del proyecto
 
@@ -61,7 +91,8 @@ MCDI501-Framingham/
 - [x] Formativa 1 desarrollada en un notebook reproducible.
 - [x] Informe PDF de la Formativa 1.
 - [x] Sumativa 1: análisis exploratorio e inferencial, notebook e informe PDF.
-- [ ] Fases posteriores.
+- [x] Sumativa 2: remuestreo, simulación, robustez, notebook e informe PDF.
+- [ ] Fase 4 y actividades posteriores.
 
 ## Entorno de trabajo
 
@@ -98,7 +129,8 @@ Los informes se preparan en LaTeX utilizando las plantillas oficiales de la asig
 
 - El dataset original se conserva en `fase-1/datos/raw/`.
 - Las transformaciones se realizan sobre copias en memoria y no modifican el archivo original.
-- Los procedimientos, resultados e interpretaciones quedan documentados en notebooks.
+- Los procedimientos, resultados e interpretaciones quedan documentados en notebooks ejecutados.
+- La Sumativa 2 utiliza la semilla `42` en sus procedimientos aleatorios.
 - Las dependencias de Python están declaradas en `requirements.txt`.
 - Los archivos temporales, el entorno virtual y las credenciales están excluidos mediante `.gitignore`.
 
