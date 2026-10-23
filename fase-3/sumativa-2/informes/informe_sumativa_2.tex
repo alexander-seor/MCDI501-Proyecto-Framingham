@@ -67,11 +67,12 @@ Repositorio: & \href{https://github.com/alexander-seor/MCDI501-Proyecto-Framingh
 % Página 2: propósito y diseño
 \section{Propósito y estrategia de validación}
 
-El trabajo valida resultados obtenidos en la Sumativa 1 sobre 4.238
-participantes del estudio Framingham. Se utilizan procedimientos de
-remuestreo y simulación para cuantificar incertidumbre, comprobar la
-estabilidad de asociaciones y detectar resultados sensibles antes de la
-etapa predictiva. Los datos originales se mantuvieron sin modificaciones.
+En la Sumativa 1 se estimaron medias, correlaciones y diferencias entre
+personas con y sin enfermedad coronaria. En esta segunda etapa se revisa
+cuánto cambian esos resultados al remuestrear los mismos 4.238 registros y
+al reducir la influencia de valores extremos. Para ello se aplican
+bootstrap, una prueba de permutación, una simulación Monte Carlo y análisis
+de sensibilidad. Los datos originales no se modifican.
 
 \begin{table}[H]
 \centering\small
@@ -100,14 +101,16 @@ Python, NumPy, pandas, Matplotlib, seaborn y SciPy \cite{virtanen2020}.
 
 \subsection{Criterio de interpretación}
 
-Se distingue entre: (i) estabilidad numérica frente al remuestreo;
-(ii) robustez frente a extremos y cambios de estimador; (iii) asociación
-estadística; y (iv) capacidad predictiva o causalidad. Una conclusión estable
-en S2 no implica por sí sola predicción fuera de muestra ni efecto causal.
+En este informe, un resultado se considera estable cuando cambia poco al
+repetir el análisis con remuestras de los mismos datos. Esto corresponde a
+una validación interna: no asegura que el resultado se mantenga en otra
+población, ni que la relación observada sea causal o tenga por sí sola
+utilidad predictiva.
 
 \vfill
-\textbf{Fuente de datos.} Framingham Heart Study, difundido como conjunto
-docente por NHLBI y en la versión utilizada por Dileep \cite{nhlbi,dileep}.
+\textbf{Fuente de datos.} El archivo analizado corresponde a la versión
+publicada por Dileep en Kaggle. La documentación del NHLBI se utilizó como
+referencia contextual sobre el Framingham Heart Study \cite{dileep,nhlbi}.
 \newpage
 
 % Página 3: bootstrap + permutación
@@ -129,26 +132,30 @@ Colesterol total & 236,7216 & 235,3707 & 238,0724 & 235,3656 & 238,0499 & 235,40
 \caption{Comparación de intervalos de confianza al 95\%.}
 \end{table}
 
-\includegraphics[width=\textwidth,height=5.1cm,keepaspectratio]{\figdir/figura_1_bootstrap_intervalos.png}
+\noindent\makebox[\textwidth][c]{%
+\includegraphics[width=\textwidth,height=5.1cm,keepaspectratio]{\figdir/figura_1_bootstrap_intervalos.png}}
 \compactcaption{Figura 1. Distribuciones de las medias bootstrap y comparación de intervalos.}
 
-Los tres métodos casi se superponen. Las estimaciones de las medias son
-estables, aunque esta concordancia no elimina la influencia potencial de
-faltantes, extremos o sesgos de selección.
+Los tres intervalos entregan prácticamente los mismos límites. Por eso, la
+estimación de estas medias cambia poco con el método elegido. De todas
+formas, esta coincidencia no resuelve los problemas de datos faltantes,
+valores extremos o representatividad de la muestra.
 
 \section{Prueba de permutación}
 
-La presión sistólica media fue 143,62 mmHg con CHD y 130,33 mmHg sin CHD:
-una diferencia observada de 13,29 mmHg. En ninguna de las 10.000
-permutaciones apareció una diferencia tan extrema; con corrección Monte
-Carlo, $p=0{,}00010$. El resultado coincide en decisión con Welch
-($p=1{,}210\times 10^{-30}$), aunque ambas pruebas no son idénticas bajo
-heterocedasticidad. Se rechaza la igualdad entre grupos, pero la diferencia
-es una asociación no ajustada y no demuestra causalidad.
+La presión sistólica media fue 143,62 mmHg con CHD y 130,33 mmHg sin CHD,
+una diferencia de 13,29 mmHg. Ninguna de las 10.000 permutaciones produjo
+un valor tan extremo, por lo que se obtuvo $p=0{,}00010$. El resultado apunta
+en la misma dirección que Welch en la Sumativa 1
+($p=1{,}210\times 10^{-30}$), aunque ambas pruebas no son idénticas cuando
+las dispersiones de los grupos difieren. En esta muestra, la presión media
+fue mayor entre quienes desarrollaron CHD. La comparación no está ajustada
+por edad, sexo u otros posibles factores de confusión.
 \newpage
 
 % Página 4: permutación y correlaciones
-\includegraphics[width=\textwidth,height=5.6cm,keepaspectratio]{\figdir/figura_2_permutacion_presion_sistolica.png}
+\noindent\makebox[\textwidth][c]{%
+\includegraphics[width=\textwidth,height=5.6cm,keepaspectratio]{\figdir/figura_2_permutacion_presion_sistolica.png}}
 \compactcaption{Figura 2. Distribución nula y diferencia observada de presión sistólica.}
 
 \section{Estabilidad de las correlaciones}
@@ -169,13 +176,16 @@ Colesterol total & 4.188 & 0,0822 & 0,0505 & 0,1135 \\
 \caption{Correlaciones con \texttt{TenYearCHD} e intervalos bootstrap.}
 \end{table}
 
-\includegraphics[width=\textwidth,height=6.7cm,keepaspectratio]{\figdir/figura_3_estabilidad_correlaciones.png}
+\noindent\makebox[\textwidth][c]{%
+\includegraphics[width=\textwidth,height=6.7cm,keepaspectratio]{\figdir/figura_3_estabilidad_correlaciones.png}}
 \compactcaption{Figura 3. Estimaciones puntuales e intervalos bootstrap al 95\%.}
 
-Los cinco intervalos excluyen cero y conservan signo positivo, pero sus
-magnitudes son débiles o modestas. Edad y presión sistólica presentan las
-asociaciones mayores. Glucosa tiene menos casos completos y, como muestra el
-análisis de robustez, es la variable más sensible a valores extremos.
+En las 3.000 remuestras, los intervalos de las cinco correlaciones quedaron
+por encima de cero. Esto indica que el signo positivo se mantuvo dentro de
+esta muestra. Sin embargo, las asociaciones siguen siendo débiles o
+modestas y no bastan, por sí solas, para afirmar que las variables tengan
+buena capacidad predictiva. Glucosa, además, tiene menos casos completos y
+fue la variable más sensible a los valores extremos.
 \newpage
 
 % Página 5: Monte Carlo
@@ -204,14 +214,17 @@ $P(\mathrm{tasa}\geq 18\%)$ & 0,88\% \\
 \caption{Resumen de 10.000 cohortes simuladas de 1.000 personas.}
 \end{table}
 
-\includegraphics[width=\textwidth,height=8.1cm,keepaspectratio]{\figdir/figura_4_monte_carlo_chd.png}
+\noindent\makebox[\textwidth][c]{%
+\includegraphics[width=\textwidth,height=8.1cm,keepaspectratio]{\figdir/figura_4_monte_carlo_chd.png}}
 \compactcaption{Figura 4. Distribución de tasas simuladas y convergencia de la media.}
 
-La media simulada reproduce el valor teórico y el MCSE confirma estabilidad
-numérica. El rango 13,0\%--17,4\% describe variación entre cohortes, no un
-intervalo de confianza poblacional. El umbral de 18\% es analítico, no
-clínico. La simulación no incorpora incertidumbre paramétrica, dependencia
-entre personas, confusores ni mecanismos causales.
+La media de las cohortes simuladas fue 15,19\%, muy cercana al 15,20\%
+esperado a partir de los parámetros usados. Esto comprueba que la simulación
+fue implementada de manera coherente, pero no constituye una validación en
+otra población porque las probabilidades provienen de los mismos datos. El
+rango 13,0\%--17,4\% describe variación entre cohortes simuladas, no un
+intervalo de confianza poblacional. El umbral de 18\% es analítico y no un
+punto de corte clínico.
 \newpage
 
 % Página 6: robustez y S3
@@ -231,12 +244,13 @@ Colesterol total & 236,722 & 234,0 & 235,193 & 236,407 & 0,6890 & 696 \\
 \caption{Sensibilidad de tendencia central e influencia jackknife.}
 \end{table}
 
-La diferencia de presión sistólica fue 13,285 mmHg originalmente, 12,784
-mmHg tras winsorizar ($-3,77$\%) y 13,152 mmHg con recorte de 5\%. El IC
-bootstrap de la diferencia recortada fue [10,992; 15,353] mmHg y Welch
-winsorizado siguió siendo altamente significativo. El tamaño de efecto
-estandarizado cambió de $d=0{,}617$ a $d=0{,}611$. Las cinco correlaciones
-conservaron signo; glucosa tuvo el mayor cambio, de 0,1255 a 0,1088.
+La diferencia de presión sistólica cambió poco al limitar los valores
+extremos: pasó de 13,29 a 12,78 mmHg. Con medias recortadas fue de 13,15
+mmHg y su intervalo bootstrap, de 10,99 a 15,35 mmHg, permaneció por encima
+de cero. Por tanto, la diferencia no parece depender de unas pocas
+observaciones extremas. Las correlaciones también conservaron su signo,
+aunque glucosa mostró el mayor cambio, de 0,1255 a 0,1088, y debe
+interpretarse con más cautela.
 
 \section{Preparación para la Sumativa 3}
 
@@ -267,24 +281,24 @@ discriminación y calibración fuera de muestra.
 % Página 7: conclusiones y referencias
 \section{Conclusiones}
 
-Los intervalos bootstrap confirman la estabilidad de las tres medias. La
-prueba de permutación y el análisis de sensibilidad respaldan la diferencia
-de presión sistólica según CHD. Las correlaciones mantienen signo, pero son
-pequeñas y no deben interpretarse como evidencia predictiva suficiente. La
-simulación reproduce la tasa observada con baja incertidumbre numérica bajo
-sus parámetros fijos. En conjunto, edad y presión sistólica son resultados
-confiables para continuar; glucosa, faltantes y extremos requieren mayor
-cautela. Ningún resultado establece causalidad.
+Ninguna de las comprobaciones realizadas cambió las conclusiones principales
+de la Sumativa 1. La edad y la presión sistólica mostraron los resultados más
+estables dentro de esta muestra, por lo que tiene sentido considerarlas en la
+siguiente etapa. Las correlaciones conservaron el signo, pero fueron pequeñas
+y no demuestran capacidad predictiva por sí solas. Glucosa requiere más
+cautela por sus datos faltantes y su mayor sensibilidad a los extremos. Estas
+conclusiones orientan la modelación, pero todavía deben comprobarse fuera de
+muestra y no permiten establecer causalidad.
 
 \small
 \begin{thebibliography}{9}
-\bibitem{dileep} Dileep. (2019). \textit{Logistic regression to predict heart disease} [Conjunto de datos]. Kaggle.
-\bibitem{efron1987} Efron, B. (1987). Better bootstrap confidence intervals. \textit{Journal of the American Statistical Association, 82}(397), 171--185.
+\bibitem{dileep} Dileep. (2019). \textit{Logistic regression to predict heart disease} [Conjunto de datos]. Kaggle. \url{https://www.kaggle.com/datasets/dileep070/heart-disease-prediction-using-logistic-regression}
+\bibitem{efron1987} Efron, B. (1987). Better bootstrap confidence intervals. \textit{Journal of the American Statistical Association, 82}(397), 171--185. \url{https://doi.org/10.1080/01621459.1987.10478410}
 \bibitem{efron1993} Efron, B., \& Tibshirani, R. J. (1993). \textit{An introduction to the bootstrap}. Chapman \& Hall.
 \bibitem{good2005} Good, P. I. (2005). \textit{Permutation, parametric, and bootstrap tests of hypotheses} (3.a ed.). Springer.
-\bibitem{nhlbi} National Heart, Lung, and Blood Institute. (s. f.). \textit{Teaching datasets: Framingham Heart Study}.
+\bibitem{nhlbi} National Heart, Lung, and Blood Institute. (s. f.). \textit{Teaching datasets: Framingham Heart Study}. \url{https://biolincc.nhlbi.nih.gov/teaching/}
 \bibitem{robert2004} Robert, C. P., \& Casella, G. (2004). \textit{Monte Carlo statistical methods} (2.a ed.). Springer.
-\bibitem{virtanen2020} Virtanen, P., et al. (2020). SciPy 1.0: Fundamental algorithms for scientific computing in Python. \textit{Nature Methods, 17}(3), 261--272.
+\bibitem{virtanen2020} Virtanen, P., et al. (2020). SciPy 1.0: Fundamental algorithms for scientific computing in Python. \textit{Nature Methods, 17}(3), 261--272. \url{https://doi.org/10.1038/s41592-019-0686-2}
 \end{thebibliography}
 
 \vfill
