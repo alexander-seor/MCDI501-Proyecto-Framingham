@@ -1,0 +1,8 @@
+﻿Resultado de S1,Validación S2,Evidencia numérica,Estado,Recomendación S3
+"Medias de edad, sysBP y colesterol","IC clásico, percentil y BCa",Límites casi coincidentes,Robusto,Controlar extremos dentro del entrenamiento
+Diferencia sysBP según CHD,"Permutación, winsorización y recorte",13.29 original; 12.78 winsorizada; p=0.00010,Robusto como asociación,Ajustar por confusores; no inferir causalidad
+Correlaciones con CHD,Bootstrap pareado y winsorización,r entre 0.082 y 0.225; IC excluyen 0,Estable pero débil,No elegir predictores solo por correlación marginal
+Glucosa,Sensibilidad a extremos y n efectivo,r=0.1255 a 0.1088; n=3850,Usar con cautela,Estudiar extremos y faltantes
+Tasa global CHD,10.000 cohortes Monte Carlo,"15,20 % observada; 15.19 % simulada; MCSE=0.0113 pp",Coherente con parámetros fijos,Estratificar y validar fuera de muestra
+Valores extremos,Jackknife y estimadores robustos,sysBP=295; colesterol=696,Revisar antes de modelar,Verificar plausibilidad; transformar dentro del entrenamiento
+Datos faltantes,Tamaños efectivos,Glucosa n=3850; colesterol n=4188; total n=4238,Revisar antes de modelar,Imputar dentro de cada partición

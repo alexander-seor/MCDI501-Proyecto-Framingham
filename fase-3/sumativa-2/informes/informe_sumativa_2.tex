@@ -1,0 +1,296 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=1.75cm,headheight=14pt]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\definecolor{unabblue}{HTML}{123B63}
+\definecolor{softgray}{HTML}{F2F4F6}
+\hypersetup{colorlinks=true,linkcolor=unabblue,urlcolor=unabblue,citecolor=unabblue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist{nosep,leftmargin=1.2em}
+\titleformat{\section}{\large\bfseries\color{unabblue}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{unabblue}}{\thesubsection.}{0.5em}{}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{MCDI501 - Estadística Computacional}
+\rhead{Sumativa 2}
+\cfoot{\thepage}
+\newcommand{\figdir}{../figuras}
+\newcommand{\compactcaption}[1]{\vspace{-3pt}\begin{center}\footnotesize #1\end{center}\vspace{-5pt}}
+
+\begin{document}
+
+% Página 1: portada
+\thispagestyle{empty}
+\begin{center}
+\vspace*{1.2cm}
+\includegraphics[width=5cm]{logo_unab.png}
+
+\vspace{1.5cm}
+{\Large\bfseries MAGÍSTER EN CIENCIA DE DATOS}\par
+\vspace{0.5cm}
+{\large MCDI501 - Estadística Computacional}\par
+\vspace{1.8cm}
+{\Huge\bfseries\color{unabblue} Evaluación Sumativa 2}\par
+\vspace{0.5cm}
+{\LARGE Validación, simulación y remuestreo}\par
+\vspace{0.9cm}
+{\Large Análisis del riesgo de enfermedad coronaria a diez años}\par
+
+\vfill
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{>{\bfseries}r l}
+Estudiante: & Alexander Sepúlveda Ormazábal \\
+Docente: & Jean Paul Maidana González \\
+Conjunto de datos: & Framingham Heart Study \\
+Fecha: & 23 de octubre de 2026 \\
+Repositorio: & \href{https://github.com/alexander-seor/MCDI501-Proyecto-Framingham}{MCDI501-Proyecto-Framingham}
+\end{tabular}
+\vfill
+\end{center}
+\newpage
+
+% Página 2: propósito y diseño
+\section{Propósito y estrategia de validación}
+
+El trabajo valida resultados obtenidos en la Sumativa 1 sobre 4.238
+participantes del estudio Framingham. Se utilizan procedimientos de
+remuestreo y simulación para cuantificar incertidumbre, comprobar la
+estabilidad de asociaciones y detectar resultados sensibles antes de la
+etapa predictiva. Los datos originales se mantuvieron sin modificaciones.
+
+\begin{table}[H]
+\centering\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.2cm} X p{3.0cm}}
+\toprule
+Componente & Procedimiento & Configuración \\
+\midrule
+Medias & Intervalos clásico, bootstrap percentil y BCa & 10.000 remuestras \\
+Grupos CHD & Welch de S1 y permutación bilateral & 10.000 permutaciones \\
+Correlaciones & Bootstrap pareado de cinco correlaciones punto-biseriales & 3.000 remuestras \\
+Monte Carlo & Cohortes generadas desde prevalencia de hipertensión y tasas condicionales de CHD & 10.000 cohortes de 1.000 \\
+Robustez & Recorte, winsorización, jackknife y bootstrap de diferencia recortada & Semilla 42 \\
+\bottomrule
+\end{tabularx}
+\caption{Diseño de validación reproducible.}
+\end{table}
+
+El intervalo clásico aproxima la distribución muestral de la media; el
+percentil toma cuantiles de la distribución bootstrap; y BCa corrige sesgo y
+aceleración \cite{efron1987,efron1993}. La permutación usa la
+intercambiabilidad de las etiquetas bajo la hipótesis nula \cite{good2005}.
+La simulación Monte Carlo aproxima la distribución de resultados hipotéticos
+bajo parámetros fijos \cite{robert2004}. El análisis se implementó con
+Python, NumPy, pandas, Matplotlib, seaborn y SciPy \cite{virtanen2020}.
+
+\subsection{Criterio de interpretación}
+
+Se distingue entre: (i) estabilidad numérica frente al remuestreo;
+(ii) robustez frente a extremos y cambios de estimador; (iii) asociación
+estadística; y (iv) capacidad predictiva o causalidad. Una conclusión estable
+en S2 no implica por sí sola predicción fuera de muestra ni efecto causal.
+
+\vfill
+\textbf{Fuente de datos.} Framingham Heart Study, difundido como conjunto
+docente por NHLBI y en la versión utilizada por Dileep \cite{nhlbi,dileep}.
+\newpage
+
+% Página 3: bootstrap + permutación
+\section{Intervalos bootstrap para las medias}
+
+\begin{table}[H]
+\centering\scriptsize
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Variable & Media & \multicolumn{2}{c}{Clásico} & \multicolumn{2}{c}{Percentil} & \multicolumn{2}{c}{BCa} \\
+ & & Inf. & Sup. & Inf. & Sup. & Inf. & Sup. \\
+\midrule
+Edad & 49,5849 & 49,3268 & 49,8431 & 49,3259 & 49,8462 & 49,3268 & 49,8471 \\
+Presión sistólica & 132,3524 & 131,6887 & 133,0161 & 131,6881 & 133,0109 & 131,7004 & 133,0231 \\
+Colesterol total & 236,7216 & 235,3707 & 238,0724 & 235,3656 & 238,0499 & 235,4043 & 238,1034 \\
+\bottomrule
+\end{tabular}
+\caption{Comparación de intervalos de confianza al 95\%.}
+\end{table}
+
+\includegraphics[width=\textwidth,height=5.1cm,keepaspectratio]{\figdir/figura_1_bootstrap_intervalos.png}
+\compactcaption{Figura 1. Distribuciones de las medias bootstrap y comparación de intervalos.}
+
+Los tres métodos casi se superponen. Las estimaciones de las medias son
+estables, aunque esta concordancia no elimina la influencia potencial de
+faltantes, extremos o sesgos de selección.
+
+\section{Prueba de permutación}
+
+La presión sistólica media fue 143,62 mmHg con CHD y 130,33 mmHg sin CHD:
+una diferencia observada de 13,29 mmHg. En ninguna de las 10.000
+permutaciones apareció una diferencia tan extrema; con corrección Monte
+Carlo, $p=0{,}00010$. El resultado coincide en decisión con Welch
+($p=1{,}210\times 10^{-30}$), aunque ambas pruebas no son idénticas bajo
+heterocedasticidad. Se rechaza la igualdad entre grupos, pero la diferencia
+es una asociación no ajustada y no demuestra causalidad.
+\newpage
+
+% Página 4: permutación y correlaciones
+\includegraphics[width=\textwidth,height=5.6cm,keepaspectratio]{\figdir/figura_2_permutacion_presion_sistolica.png}
+\compactcaption{Figura 2. Distribución nula y diferencia observada de presión sistólica.}
+
+\section{Estabilidad de las correlaciones}
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+Variable & $n$ efectivo & $r$ observado & IC 95\% inferior & IC 95\% superior \\
+\midrule
+Edad & 4.238 & 0,2253 & 0,1964 & 0,2540 \\
+Presión sistólica & 4.238 & 0,2164 & 0,1826 & 0,2494 \\
+Presión diastólica & 4.238 & 0,1453 & 0,1115 & 0,1797 \\
+Glucosa & 3.850 & 0,1255 & 0,0815 & 0,1680 \\
+Colesterol total & 4.188 & 0,0822 & 0,0505 & 0,1135 \\
+\bottomrule
+\end{tabular}
+\caption{Correlaciones con \texttt{TenYearCHD} e intervalos bootstrap.}
+\end{table}
+
+\includegraphics[width=\textwidth,height=6.7cm,keepaspectratio]{\figdir/figura_3_estabilidad_correlaciones.png}
+\compactcaption{Figura 3. Estimaciones puntuales e intervalos bootstrap al 95\%.}
+
+Los cinco intervalos excluyen cero y conservan signo positivo, pero sus
+magnitudes son débiles o modestas. Edad y presión sistólica presentan las
+asociaciones mayores. Glucosa tiene menos casos completos y, como muestra el
+análisis de robustez, es la variable más sensible a valores extremos.
+\newpage
+
+% Página 5: Monte Carlo
+\section{Simulación Monte Carlo}
+
+La simulación utiliza $P(H)=0{,}3105$, $P(CHD\mid H)=0{,}2470$ y
+$P(CHD\mid \neg H)=0{,}1092$. Para cada cohorte se genera primero la
+hipertensión y luego CHD condicionado a ese estado. Los parámetros permanecen
+fijos y las personas se consideran independientes.
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lr}
+\toprule
+Resultado & Valor \\
+\midrule
+Tasa global observada y teórica & 15,20\% \\
+Media de las 10.000 cohortes & 15,19\% \\
+Desviación entre cohortes & 1,13 puntos porcentuales \\
+MCSE de la media simulada & 0,0113 puntos porcentuales \\
+Rango predictivo central 95\% & 13,0\%--17,4\% \\
+Percentil 99 & 17,9\% \\
+$P(\mathrm{tasa}\geq 18\%)$ & 0,88\% \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de 10.000 cohortes simuladas de 1.000 personas.}
+\end{table}
+
+\includegraphics[width=\textwidth,height=8.1cm,keepaspectratio]{\figdir/figura_4_monte_carlo_chd.png}
+\compactcaption{Figura 4. Distribución de tasas simuladas y convergencia de la media.}
+
+La media simulada reproduce el valor teórico y el MCSE confirma estabilidad
+numérica. El rango 13,0\%--17,4\% describe variación entre cohortes, no un
+intervalo de confianza poblacional. El umbral de 18\% es analítico, no
+clínico. La simulación no incorpora incertidumbre paramétrica, dependencia
+entre personas, confusores ni mecanismos causales.
+\newpage
+
+% Página 6: robustez y S3
+\section{Análisis de robustez}
+
+\begin{table}[H]
+\centering\scriptsize
+\begin{tabular}{lrrrrrr}
+\toprule
+Variable & Media & Mediana & Recortada 5\% & Winsorizada & EE jack. & Extremo influyente \\
+\midrule
+Edad & 49,585 & 49,0 & 49,447 & 49,583 & 0,1317 & 70 \\
+Presión sistólica & 132,352 & 128,0 & 130,906 & 132,240 & 0,3385 & 295 \\
+Colesterol total & 236,722 & 234,0 & 235,193 & 236,407 & 0,6890 & 696 \\
+\bottomrule
+\end{tabular}
+\caption{Sensibilidad de tendencia central e influencia jackknife.}
+\end{table}
+
+La diferencia de presión sistólica fue 13,285 mmHg originalmente, 12,784
+mmHg tras winsorizar ($-3,77$\%) y 13,152 mmHg con recorte de 5\%. El IC
+bootstrap de la diferencia recortada fue [10,992; 15,353] mmHg y Welch
+winsorizado siguió siendo altamente significativo. El tamaño de efecto
+estandarizado cambió de $d=0{,}617$ a $d=0{,}611$. Las cinco correlaciones
+conservaron signo; glucosa tuvo el mayor cambio, de 0,1255 a 0,1088.
+
+\section{Preparación para la Sumativa 3}
+
+\begin{table}[H]
+\centering\scriptsize
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.7cm} p{3.7cm} p{2.7cm} X}
+\toprule
+Resultado & Evidencia de S2 & Estado & Recomendación \\
+\midrule
+Medias principales & IC clásico, percentil y BCa coinciden & Robusto & Controlar extremos dentro del entrenamiento. \\
+Diferencia de sysBP & Permutación, winsorización y recorte coinciden & Robusto como asociación & Ajustar confusores; no inferir causalidad. \\
+Correlaciones & $r=0{,}082$--$0{,}225$; IC excluyen cero & Estable pero débil & No elegir variables solo por correlación marginal. \\
+Glucosa & $r$: 0,1255 a 0,1088; $n=3.850$ & Usar con cautela & Estudiar faltantes y extremos. \\
+Tasa de CHD & 15,20\% observada; 15,19\% simulada & Coherente bajo supuestos & Estratificar y validar fuera de muestra. \\
+Calidad de datos & sysBP=295; colesterol=696; faltantes & Revisar & Verificar plausibilidad e imputar sin fuga. \\
+\bottomrule
+\end{tabularx}
+\caption{Síntesis para la etapa predictiva.}
+\end{table}
+
+Antes de imputar, escalar, transformar o winsorizar se deben separar las
+particiones; cada operación se ajustará solo con entrenamiento. Dado que CHD
+ocurre en 15,2\%, se recomiendan particiones estratificadas y evaluación de
+discriminación y calibración fuera de muestra.
+\newpage
+
+% Página 7: conclusiones y referencias
+\section{Conclusiones}
+
+Los intervalos bootstrap confirman la estabilidad de las tres medias. La
+prueba de permutación y el análisis de sensibilidad respaldan la diferencia
+de presión sistólica según CHD. Las correlaciones mantienen signo, pero son
+pequeñas y no deben interpretarse como evidencia predictiva suficiente. La
+simulación reproduce la tasa observada con baja incertidumbre numérica bajo
+sus parámetros fijos. En conjunto, edad y presión sistólica son resultados
+confiables para continuar; glucosa, faltantes y extremos requieren mayor
+cautela. Ningún resultado establece causalidad.
+
+\small
+\begin{thebibliography}{9}
+\bibitem{dileep} Dileep. (2019). \textit{Logistic regression to predict heart disease} [Conjunto de datos]. Kaggle.
+\bibitem{efron1987} Efron, B. (1987). Better bootstrap confidence intervals. \textit{Journal of the American Statistical Association, 82}(397), 171--185.
+\bibitem{efron1993} Efron, B., \& Tibshirani, R. J. (1993). \textit{An introduction to the bootstrap}. Chapman \& Hall.
+\bibitem{good2005} Good, P. I. (2005). \textit{Permutation, parametric, and bootstrap tests of hypotheses} (3.a ed.). Springer.
+\bibitem{nhlbi} National Heart, Lung, and Blood Institute. (s. f.). \textit{Teaching datasets: Framingham Heart Study}.
+\bibitem{robert2004} Robert, C. P., \& Casella, G. (2004). \textit{Monte Carlo statistical methods} (2.a ed.). Springer.
+\bibitem{virtanen2020} Virtanen, P., et al. (2020). SciPy 1.0: Fundamental algorithms for scientific computing in Python. \textit{Nature Methods, 17}(3), 261--272.
+\end{thebibliography}
+
+\vfill
+\begin{center}\footnotesize
+Notebook reproducible ejecutado con semilla 42. Todas las figuras fueron
+exportadas a 300 dpi y los datos originales permanecieron sin cambios.
+\end{center}
+
+\end{document}
