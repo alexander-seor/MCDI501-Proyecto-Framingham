@@ -1,0 +1,332 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,left=2cm,right=2cm,top=1.9cm,bottom=2.1cm,headheight=14pt]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{adjustbox}
+\usepackage{amsmath}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+
+\definecolor{unabblue}{HTML}{123B63}
+\definecolor{softgray}{HTML}{F2F4F6}
+\definecolor{midgray}{HTML}{666666}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=unabblue,
+  urlcolor=unabblue,
+  citecolor=unabblue,
+  pdftitle={Informe final integrado - Proyecto Framingham},
+  pdfauthor={Alexander Sepúlveda Ormazábal}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3.5pt}
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=1.25em}
+\titleformat{\section}{\large\bfseries\color{unabblue}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{unabblue}}{\thesubsection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{0.8em}{0.3em}
+\titlespacing*{\subsection}{0pt}{0.55em}{0.2em}
+\captionsetup{font=small,labelfont=bf,justification=centering,singlelinecheck=true,skip=4pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize MCDI501 - Estadística Computacional}
+\rhead{\footnotesize Informe final integrado}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\newcommand{\figdir}{../../figuras}
+\newcommand{\repourl}{https://github.com/alexander-seor/MCDI501-Proyecto-Framingham}
+\newcommand{\compacttable}{\small\renewcommand{\arraystretch}{1.12}}
+
+\begin{document}
+
+% Página 1: portada
+\thispagestyle{empty}
+\pagenumbering{gobble}
+\begin{center}
+\vspace*{0.35cm}
+\includegraphics[height=3.7cm]{../../../../fase-3/sumativa-2/informes/logo_unab.png}
+
+\vspace{0.55cm}
+{\small\color{midgray}\MakeUppercase{Magíster en Ciencia de Datos e Inteligencia Artificial}}\par
+\vspace{0.15cm}
+{\small\color{midgray}MCDI501: Estadística Computacional para la Toma de Decisiones}\par
+\vspace{1.15cm}
+
+{\LARGE\bfseries\color{unabblue} Evaluación Sumativa 3}\par
+\vspace{0.28cm}
+{\Large\bfseries Modelamiento Predictivo Integrado}\par
+\vspace{0.55cm}
+{\large Análisis del riesgo de enfermedad coronaria a diez años}\par
+\vspace{0.6cm}
+{\small\itshape Informe técnico final - Fase 4}\par
+
+\vfill
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{>{\bfseries}r l}
+Estudiante: & Alexander Sepúlveda Ormazábal \\
+Docente: & Jean Paul Maidana González \\
+Dataset: & Framingham Heart Study \\
+Fecha: & 28 de octubre de 2026 \\
+Repositorio: & \href{\repourl}{MCDI501-Proyecto-Framingham}
+\end{tabular}
+\vfill
+{\footnotesize Universidad Andrés Bello}
+\end{center}
+
+\clearpage
+\pagenumbering{arabic}
+
+% Página 2
+\section{Resumen ejecutivo}
+
+Este proyecto integra exploración, inferencia, remuestreo y modelamiento predictivo sobre 4.238 personas del conjunto Framingham, con 16 variables y una prevalencia de enfermedad coronaria (CHD, del inglés \textit{coronary heart disease}) a diez años (\texttt{TenYearCHD}) de 15,20\,\%. El objetivo es distinguir perfiles con y sin evento coronario, no establecer causalidad ni producir un instrumento clínico listo para uso.
+
+La Sumativa 1 (S1) identificó faltantes, valores extremos y asociaciones bivariadas; la Sumativa 2 (S2) comprobó la estabilidad interna de los principales resultados mediante bootstrap, permutación y análisis de sensibilidad, y utilizó Monte Carlo para estudiar la variación de tasas bajo parámetros fijos; la Sumativa 3 (S3) utilizó esa evidencia para comparar tres estrategias de imputación y tres modelos logísticos. El modelo final, seleccionado por el criterio de información bayesiano (BIC) y la regla de un error estándar, incluyó edad, cigarrillos diarios, presión sistólica, glucosa y sexo. En el conjunto de prueba obtuvo un área bajo la curva ROC (AUC) de 0,7026; ROC corresponde a la característica operativa del receptor. Además, alcanzó una sensibilidad o \textit{recall} de 0,6010, una precisión de 0,2479 y una medida F1 de 0,3510. En términos simples, el modelo identificó cerca de seis de cada diez casos, pero muchas de sus alertas fueron falsos positivos. Sus intervalos bootstrap al 95\,\% conservaron asociaciones positivas, aunque la discriminación fue moderada y se detectaron indicios de no linealidad para la edad y sensibilidad a varias observaciones. Se concluye que el modelo es útil como síntesis metodológica y punto de partida, no para decisiones clínicas directas.
+
+\section{Introducción}
+
+La enfermedad coronaria se desarrolla a partir de múltiples factores demográficos, conductuales y clínicos. Anticipar su ocurrencia a diez años constituye un problema de decisión bajo incertidumbre: una clasificación incorrecta puede omitir personas de riesgo o generar alertas innecesarias. La base presenta tres dificultades centrales: desbalance de la respuesta, valores faltantes --especialmente en glucosa-- y observaciones extremas plausibles.
+
+Los datos corresponden a la versión de Framingham publicada por Dileep (2019) en Kaggle; la documentación del \textit{National Heart, Lung, and Blood Institute} (NHLBI) se usa como referencia contextual. Al ser un estudio observacional, las asociaciones no demuestran causalidad. El objetivo específico es construir y evaluar modelos logísticos trazables a S1 y S2, cuantificar su estabilidad y establecer si las decisiones dependen del tratamiento de los faltantes.
+
+\section{Metodología integrada S1--S2--S3}
+
+Las tres sumativas se trataron como etapas de un mismo análisis. S1 aportó el diagnóstico inicial de calidad y las primeras asociaciones; S2 evaluó cuánto cambiaban esos resultados al remuestrear, controlar valores extremos y simular tasas; y S3 convirtió esa evidencia en decisiones de preparación, selección y evaluación de modelos. La Tabla~\ref{tab:trazabilidad} resume esta continuidad y evita presentar el modelamiento como un ejercicio separado de las fases anteriores.
+
+\begin{table}[htbp]
+\centering
+\caption{Trazabilidad de resultados y decisiones entre las tres sumativas.}
+\label{tab:trazabilidad}
+\compacttable
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.35cm} X X}
+\toprule
+Etapa & Evidencia principal & Consecuencia metodológica \\
+\midrule
+S1: calidad & 388 faltantes en glucosa (9,16\,\%); valores extremos clínicamente plausibles & Comparar eliminación e imputaciones; tratar extremos sin borrar automáticamente \\
+S1: inferencia & Presión sistólica (\texttt{sysBP}): diferencia de 13,29 mmHg entre grupos, $p<0{,}001$; hipertensión con riesgo relativo (RR) 2,26 & Incorporar señales cardiovasculares como candidatas, sin inferir causalidad \\
+S2: estabilidad & Cinco correlaciones con CHD mantuvieron intervalos de confianza (IC) bootstrap sobre cero, aunque fueron débiles & Modelo M1 informado por S1/S2, pero selección no basada solo en correlación \\
+S2: robustez & Diferencia de \texttt{sysBP} winsorizada 12,78 mmHg; permutación $p=0{,}00010$ & Winsorización aprendida solo con entrenamiento \\
+S2: simulación & Tasa simulada media 15,19\,\%, cercana al 15,20\,\% observado & Partición estratificada; Monte Carlo no se interpreta como validación externa \\
+S3: modelamiento & Tres modelos, bootstrap y diagnósticos & Selección por validación interna, parsimonia y desempeño fuera de muestra \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Para evaluar los modelos con datos no utilizados durante el ajuste, la muestra se dividió de forma estratificada: 70\,\% para entrenamiento (2.966 observaciones) y 30\,\% para prueba (1.272 observaciones). La estratificación mantuvo una proporción similar de casos con y sin CHD en ambos conjuntos. Imputadores, límites de winsorización entre percentiles 1 y 99 y escaladores se ajustaron exclusivamente con entrenamiento, con el fin de evitar que información del conjunto de prueba influyera en el modelo. Las variables numéricas se estandarizaron, \texttt{education} se trató como ordinal y las binarias conservaron la codificación 0/1. La semilla 42 permite reproducir la partición y los procedimientos aleatorios. El procesamiento y los ajustes se implementaron con \textit{scikit-learn} y \textit{statsmodels} (Pedregosa et al., 2011; Seabold \& Perktold, 2010).
+
+% Continuación del desarrollo
+\section{Tratamiento de datos faltantes}
+
+El tratamiento de los datos faltantes era relevante porque eliminar todos los registros incompletos reducía la muestra y podía cambiar la composición de los grupos. S1 registró faltantes en glucosa (\texttt{glucose}; 388; 9,16\,\%), nivel educativo (\texttt{education}; 105; 2,48\,\%), medicación antihipertensiva (\texttt{BPMeds}; 53; 1,25\,\%), colesterol total (\texttt{totChol}; 50; 1,18\,\%), cigarrillos diarios (\texttt{cigsPerDay}; 29; 0,68\,\%), índice de masa corporal (\texttt{BMI}; 19; 0,45\,\%) y frecuencia cardiaca (\texttt{heartRate}; 1; 0,02\,\%). S1 no identificó formalmente si los faltantes eran completamente al azar (MCAR), al azar condicionados a variables observadas (MAR) o no al azar (MNAR). Se adoptó MAR como supuesto de trabajo porque variables observadas podían ayudar a estimar los valores ausentes, sin descartar que existiera un mecanismo no observado o MNAR (Little \& Rubin, 2019).
+
+Para las cinco variables cuantitativas con faltantes se ajustaron regresiones lineales múltiples sobre casos completos de entrenamiento. Los predictores se eligieron mediante correlaciones de S1, priorizando señales revisadas en S2. \texttt{education} y \texttt{BPMeds} se imputaron por moda. La validación cruzada (CV) evaluó cada regresión mediante $R^2$ y la raíz del error cuadrático medio (RMSE). La Tabla~\ref{tab:imputacion} muestra que el desempeño fue desigual.
+
+\begin{table}[htbp]
+\centering
+\caption{Desempeño de las regresiones de imputación en entrenamiento.}
+\label{tab:imputacion}
+\compacttable
+\begin{tabular}{lrrrr}
+\toprule
+Variable & Imputados train & Imputados test & $R^2$ CV & RMSE CV \\
+\midrule
+Cigarrillos/día & 23 & 6 & 0,627 & 7,285 \\
+Glucosa & 286 & 102 & 0,373 & 18,470 \\
+IMC & 17 & 2 & 0,158 & 3,803 \\
+Colesterol total & 31 & 19 & 0,082 & 41,896 \\
+Frecuencia cardiaca & 1 & 0 & 0,039 & 11,833 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las pruebas de Breusch--Pagan y Jarque--Bera indicaron que los errores de varias regresiones no tenían varianza constante ni una distribución cercana a la normal. Esto no impide generar valores imputados, pero advierte que las regresiones simplifican relaciones más complejas. Además, como cada caso recibe una única predicción, la imputación determinista concentró artificialmente los valores, tal como muestra la Figura~\ref{fig:imputacion}. Las curvas comparan grupos de tamaños diferentes y son descriptivas; en frecuencia cardiaca la línea imputada representa un único dato.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth,height=7.0cm,keepaspectratio,clip,trim=0 0 0 45]{\figdir/figura_1_imputacion_regresion.png}
+\caption{Distribuciones observadas e imputadas por regresión en el conjunto de entrenamiento. Los tamaños de cada grupo aparecen en los paneles.}
+\label{fig:imputacion}
+\end{figure}
+
+La eliminación de casos incompletos conservó 3.656 de 4.238 registros y redujo el conjunto de entrenamiento de 2.966 a 2.539 casos. En cambio, las imputaciones simple y por regresión conservaron todas las observaciones y mantuvieron relaciones similares con CHD. Se adoptó la imputación por regresión como estrategia principal porque utiliza información de varias variables para estimar cada dato ausente. Esta decisión debe interpretarse con cautela: no se demostró que fuera superior a la imputación simple y su capacidad explicativa fue baja para colesterol, IMC y frecuencia cardiaca.
+
+% Continuación del desarrollo
+\section{Clasificación mediante regresión logística}
+
+\subsection{Modelos candidatos y selección}
+
+Se compararon tres formas de construir el modelo. M1 funcionó como modelo guiado por la evidencia previa: combinó seis variables destacadas en S1/S2 e incorporó en S3 un término cuadrático para explorar si el efecto de la edad era curvo. M2 utilizó selección \textit{stepwise} bidireccional, procedimiento que agrega o retira variables según su significancia estadística. M3 comenzó con un conjunto amplio y eliminó variables hacia atrás hasta minimizar el BIC, criterio que busca buen ajuste, pero penaliza los modelos innecesariamente complejos (Maidana, 2026).
+
+La selección se repitió dentro de los pliegues de validación para reducir el optimismo al comparar modelos. Sin embargo, el preprocesamiento ya había sido ajustado sobre todo el conjunto de entrenamiento. Por esta razón, los resultados corresponden a validación interna y no a una tubería completamente anidada; esta diferencia se considera posteriormente como una limitación.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparación de los tres modelos logísticos.}
+\label{tab:modelos}
+\compacttable
+\begin{tabular}{lrrrrrr}
+\toprule
+Modelo & Variables & CV-AUC & AUC prueba & Exactitud & Sensib. & F1 \\
+\midrule
+M1 S1/S2 & 7 & 0,7197 & 0,6728 & 0,6289 & 0,6373 & 0,3426 \\
+M2 Stepwise & 8 & 0,7346 & 0,6953 & 0,6509 & 0,6218 & 0,3509 \\
+M3 BIC & 5 & 0,7336 & 0,7026 & 0,6627 & 0,6010 & 0,3510 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+M2 obtuvo el mayor AUC promedio en validación cruzada, pero M3 quedó prácticamente empatado y utilizó tres variables menos. La regla de un error estándar favorece el modelo más simple cuando su desempeño es compatible con el mejor resultado dentro de la variabilidad observada. Aplicando esa regla se seleccionó M3, compuesto por edad, cigarrillos diarios, presión sistólica, glucosa y sexo. El conjunto de prueba se mantuvo reservado y no intervino en esta decisión.
+
+\subsection{Desempeño predictivo}
+
+Como solo el 15,20\,\% de las personas presentó CHD, el clasificador podía favorecer al grupo mayoritario y omitir demasiados casos positivos. Para compensarlo se usó ponderación de clases, dando mayor importancia a los casos con enfermedad durante el ajuste. Esta decisión busca aumentar la detección, pero puede producir más falsos positivos. Por ello, las probabilidades resultantes se interpretan como puntajes para ordenar riesgo, no como probabilidades clínicas calibradas. Los coeficientes e intervalos inferenciales, en cambio, provienen de un ajuste logístico no ponderado por máxima verosimilitud (Hosmer et al., 2013).
+
+En el conjunto de prueba, M3 clasificó correctamente 727 personas sin CHD y 116 con CHD. También generó 352 falsos positivos, es decir, alertas en personas que no desarrollaron la enfermedad, y dejó sin detectar 77 casos positivos. La sensibilidad de 0,601 significa que identificó cerca de seis de cada diez personas con CHD. La precisión de 0,248 indica que aproximadamente una de cada cuatro alertas correspondió realmente a un caso positivo. La Figura~\ref{fig:desempeno} permite comparar este equilibrio en las curvas ROC y en las matrices de confusión de los tres modelos.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth,height=9.0cm,keepaspectratio,clip,trim=0 0 0 35]{\figdir/figura_2_desempeno_modelos.png}
+\caption{Curvas ROC en prueba y matrices de confusión en entrenamiento y prueba para M1, M2 y M3, con umbral 0,5.}
+\label{fig:desempeno}
+\end{figure}
+
+El AUC de 0,7026 resume la capacidad de ordenar, en general, a una persona con CHD por encima de otra sin CHD. El valor supera el comportamiento al azar (AUC 0,5), pero corresponde a una discriminación moderada. Por sí solo no justifica decisiones clínicas: todavía se requiere calibrar los puntajes, definir un umbral según los costos de cada error y validar el modelo en otra población.
+
+% Continuación del desarrollo
+\section{Estabilidad del modelo final mediante bootstrap}
+
+El bootstrap se utilizó para evaluar cuánto cambiarían los coeficientes si se repitiera el muestreo con observaciones similares. Siguiendo el procedimiento de S2, se generaron 1.000 remuestras con reemplazo a partir de las filas de entrenamiento y se volvió a ajustar el modelo inferencial en cada una. Los 1.000 ajustes convergieron. Con esos resultados se calcularon intervalos percentil al 95\,\% para los coeficientes y los \textit{odds ratios} (OR), y se compararon con los intervalos de Wald (Efron \& Tibshirani, 1993). El análisis es condicional porque mantiene fijas la imputación, las transformaciones y la selección de variables.
+
+\begin{table}[htbp]
+\centering
+\caption{Odds ratios del modelo M3 e intervalos bootstrap al 95\,\%.}
+\label{tab:bootstrap}
+\compacttable
+\begin{tabular}{lrrr}
+\toprule
+Variable & OR & IC bootstrap 95\,\% & Interpretación de escala \\
+\midrule
+Edad & 1,8456 & 1,6569--2,0765 & por 1 desviación estándar \\
+Cigarrillos/día & 1,3487 & 1,2142--1,4961 & por 1 desviación estándar \\
+Presión sistólica & 1,4918 & 1,3365--1,6672 & por 1 desviación estándar \\
+Glucosa & 1,1787 & 1,0719--1,2954 & por 1 desviación estándar \\
+Sexo masculino & 1,4981 & 1,1889--1,8879 & respecto de femenino \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\textwidth,height=5.2cm,keepaspectratio,clip,trim=0 0 0 22]{\figdir/figura_3_bootstrap_odds_ratios.png}
+\caption{Odds ratios del modelo final e intervalos bootstrap del 95\,\%. La línea vertical indica OR=1 y el eje se presenta en escala logarítmica.}
+\label{fig:bootstrap}
+\end{figure}
+
+Todos los intervalos excluyeron OR=1 y fueron próximos a los de Wald. Esto significa que, dentro de las remuestras analizadas, las asociaciones conservaron su dirección positiva y una magnitud semejante. El resultado respalda estabilidad interna, pero no demuestra causalidad ni asegura que el modelo funcione igual en otra población. Además, como las variables continuas fueron estandarizadas, cada OR representa un aumento de una desviación estándar y no una unidad clínica original; por ejemplo, no corresponde directamente a un año de edad o a un mmHg adicional.
+
+\section{Diagnóstico de supuestos}
+
+Los diagnósticos evaluaron si algunas condiciones del modelo podían distorsionar la interpretación. El factor de inflación de la varianza (VIF) máximo fue 1,239, muy inferior al umbral práctico de 5. Por tanto, no se observó multicolinealidad preocupante, es decir, las variables seleccionadas no entregaban información excesivamente redundante. La prueba de Box--Tidwell detectó evidencia de una relación no lineal entre edad y el logit ($p=0{,}0154$), además de una señal limítrofe para glucosa ($p=0{,}0636$). No hubo una señal clara para cigarrillos o presión sistólica.
+
+La distancia de Cook y los residuos de Pearson se utilizaron para identificar observaciones con mayor influencia o peor ajuste individual. Se encontraron 261 casos sobre el umbral de Cook $4/n$ (8,80\,\%) y 81 residuos de Pearson con valor absoluto mayor que 3 (2,73\,\%). Al repetir el análisis sin el conjunto marcado, los coeficientes conservaron signos positivos, pero aumentaron de magnitud, especialmente para edad (OR de 1,85 a 3,00) y presión sistólica (OR de 1,49 a 2,04). Como estas personas pueden ser casos reales y no errores, no se eliminaron automáticamente; en cambio, se reconoció que influyen en el ajuste y que los OR deben interpretarse con cautela.
+
+% Continuación del desarrollo
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth,height=6.2cm,keepaspectratio,clip,trim=0 0 0 45]{\figdir/figura_4_diagnosticos_modelo.png}
+\caption{VIF y residuos de Pearson del modelo final en entrenamiento. Las líneas de referencia corresponden a VIF=5 y residuos $\pm3$.}
+\label{fig:diagnosticos}
+\end{figure}
+
+La forma de los residuos también refleja el desbalance y el hecho de que la respuesta solo toma dos valores. En conjunto, estos diagnósticos no determinan si el modelo es ``verdadero'' o ``falso''; muestran dónde su representación resulta insuficiente. La principal mejora pendiente es modelar la edad de forma flexible, por ejemplo mediante términos no lineales.
+
+\section{Sensibilidad a la estrategia de imputación}
+
+Finalmente, se evaluó si la conclusión sobre M3 dependía de la forma elegida para tratar los faltantes. El modelo se reajustó con tres estrategias: eliminación de casos incompletos, imputación simple e imputación por regresión. Para que la comparación fuera justa, las tres versiones se evaluaron sobre las mismas 1.117 personas con información completa en el conjunto de prueba.
+
+\begin{table}[htbp]
+\centering
+\caption{Desempeño del modelo final según estrategia de faltantes.}
+\label{tab:impacto}
+\compacttable
+\begin{tabular}{lrrrrrr}
+\toprule
+Estrategia & $n$ entren. & $n$ prueba & Exactitud & Sensib. & F1 & AUC \\
+\midrule
+Eliminación & 2.539 & 1.117 & 0,6732 & 0,6221 & 0,3696 & 0,7073 \\
+Simple & 2.966 & 1.117 & 0,6625 & 0,6105 & 0,3578 & 0,7059 \\
+Regresión & 2.966 & 1.117 & 0,6670 & 0,6047 & 0,3586 & 0,7059 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth,height=6.0cm,keepaspectratio,clip,trim=0 0 0 45]{\figdir/figura_5_impacto_imputacion.png}
+\caption{Sensibilidad del desempeño y de los coeficientes con IC del 95\,\% frente a las tres estrategias de datos faltantes.}
+\label{fig:impacto}
+\end{figure}
+
+Las diferencias de AUC fueron mínimas y los intervalos de los coeficientes se superpusieron. En consecuencia, la conclusión general sobre las variables del modelo cambió poco entre estrategias. La eliminación perdió 427 observaciones de entrenamiento y no mostró una ventaja predictiva clara, mientras que la imputación simple produjo resultados casi equivalentes a la regresión. Sin embargo, el conjunto común de prueba contiene solo casos completos. Esta comparación muestra principalmente cómo cambia el entrenamiento y no permite saber cuál método imputaría mejor a una persona nueva con información faltante.
+
+% Continuación del desarrollo
+\section{Discusión integrada}
+
+La progresión S1--S2--S3 modifica la lectura de los resultados. S1 identificó edad y presión sistólica como las señales marginales más claras; S2 mostró que sus asociaciones persistían al remuestrear y controlar extremos; S3 confirmó que ambas aportan información en un modelo conjunto. Sin embargo, estabilidad estadística no equivale a gran capacidad predictiva: los OR fueron estables, mientras que el AUC permaneció en un nivel moderado.
+
+La baja precisión es coherente con el desbalance y con la ponderación orientada a aumentar la detección. Esta estrategia produjo 352 falsos positivos en prueba. El umbral 0,5 no fue optimizado por costos clínicos y las puntuaciones no fueron calibradas. Por tanto, no deben comunicarse como probabilidades individuales de enfermedad.
+
+El tratamiento de faltantes fue coherente y evitó fuga desde prueba, pero la imputación determinista reduce variabilidad y varias regresiones tuvieron bajo $R^2$. Una imputación múltiple sería más apropiada si se buscara inferencia poblacional. Además, la validación cruzada no repitió todo el preprocesamiento dentro de cada pliegue, el test proviene de una sola partición y no existe validación externa.
+
+La edad incumplió la linealidad aproximada en el logit y el ajuste fue sensible al conjunto de casos señalado por Cook. Estas limitaciones no invalidan el ejercicio, pero impiden presentar M3 como una especificación definitiva. Splines o modelos no lineales podrían capturar relaciones que la regresión logística lineal resume de manera incompleta (James et al., 2013).
+
+\section{Conclusiones y recomendaciones}
+
+\begin{enumerate}
+\item M3 BIC ofreció el mejor equilibrio entre parsimonia y desempeño: cinco variables, AUC 0,7026 y resultados cercanos a M2 en validación interna.
+\item Edad, cigarrillos diarios, presión sistólica, glucosa y sexo masculino mantuvieron asociaciones positivas e intervalos bootstrap que excluyeron OR=1.
+\item El modelo mostró discriminación moderada y baja precisión; no está listo para decisiones clínicas ni demuestra relaciones causales.
+\item Las conclusiones cambiaron poco entre eliminación, imputación simple e imputación por regresión, aunque esta última conservó la muestra completa.
+\item Los diagnósticos revelaron no linealidad para edad e influencia relevante, que deben resolverse antes de cualquier aplicación.
+\end{enumerate}
+
+Se recomienda realizar validación externa y validación cruzada completamente anidada; evaluar calibración y umbrales basados en costos; usar splines para edad y evaluar una forma flexible para glucosa; comparar imputación múltiple; y monitorear desempeño, equidad y estabilidad con datos nuevos. El valor actual del modelo es metodológico: integra de manera reproducible la evidencia de las tres fases y explicita sus límites.
+
+\clearpage
+\small
+\begin{thebibliography}{9}
+\bibitem{dileep} Dileep. (2019). \textit{Logistic regression to predict heart disease} [Conjunto de datos]. Kaggle. \url{https://www.kaggle.com/datasets/dileep070/heart-disease-prediction-using-logistic-regression}
+\bibitem{efron} Efron, B., \& Tibshirani, R. J. (1993). \textit{An introduction to the bootstrap}. Chapman \& Hall.
+\bibitem{hosmer} Hosmer, D. W., Lemeshow, S., \& Sturdivant, R. X. (2013). \textit{Applied logistic regression} (3.a ed.). Wiley.
+\bibitem{james} James, G., Witten, D., Hastie, T., \& Tibshirani, R. (2013). \textit{An introduction to statistical learning}. Springer.
+\bibitem{little} Little, R. J. A., \& Rubin, D. B. (2019). \textit{Statistical analysis with missing data} (3.a ed.). Wiley.
+\bibitem{maidana} Maidana, J. P. (2026). \textit{Selección de variables y comparación de modelos} [Apunte del curso MCDI501]. Universidad Andrés Bello.
+\bibitem{nhlbi} National Heart, Lung, and Blood Institute. (s. f.). \textit{Teaching datasets: Framingham Heart Study}. \url{https://biolincc.nhlbi.nih.gov/teaching/}
+\bibitem{pedregosa} Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., \& Duchesnay, É. (2011). Scikit-learn: Machine learning in Python. \textit{Journal of Machine Learning Research, 12}, 2825--2830.
+\bibitem{seabold} Seabold, S., \& Perktold, J. (2010). Statsmodels: Econometric and statistical modeling with Python. \textit{Proceedings of the 9th Python in Science Conference}, 92--96.
+\end{thebibliography}
+
+\vfill
+\begin{center}
+\footnotesize Notebook reproducible ejecutado con semilla 42. Figuras exportadas a 300 dpi. Los datos originales permanecieron sin cambios.
+\end{center}
+
+\end{document}
