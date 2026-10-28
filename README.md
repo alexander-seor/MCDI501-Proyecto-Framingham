@@ -4,7 +4,7 @@ Repositorio personal del proyecto desarrollado para la asignatura **Estadística
 
 ## Pregunta general del proyecto
 
-¿Qué diferencias demográficas, conductuales y clínicas se observan entre las personas que desarrollaron y las que no desarrollaron enfermedad coronaria durante los diez años de seguimiento?
+¿Qué características demográficas, conductuales y clínicas se asocian con la enfermedad coronaria a diez años y con qué capacidad un modelo puede distinguir perfiles con y sin evento?
 
 El análisis es observacional. Sus resultados permiten describir asociaciones y patrones, pero no establecer relaciones causales.
 
@@ -47,6 +47,13 @@ MCDI501-Framingham/
 │   │   └── resultados/
 │   └── README.md
 ├── fase-4/
+│   ├── sumativa-3/
+│   │   ├── figuras/
+│   │   ├── informe/
+│   │   │   └── latex/
+│   │   ├── notebooks/
+│   │   └── resultados/
+│   └── README.md
 ├── .gitignore
 ├── README.md
 └── requirements.txt
@@ -55,8 +62,8 @@ MCDI501-Framingham/
 - `fase-1/`: selección, comprensión y caracterización inicial del dataset.
 - `fase-2/`: análisis exploratorio e inferencial de la Sumativa 1.
 - `fase-3/`: validación interna mediante remuestreo, simulación y análisis de sensibilidad.
-- `fase-4/`: actividades correspondientes a la cuarta fase del proyecto.
-- `datos/raw/`: archivo original, conservado sin modificaciones.
+- `fase-4/`: modelamiento predictivo integrado, diagnóstico, evaluación de estabilidad e informe técnico final.
+- `fase-1/datos/raw/`: archivo original, conservado sin modificaciones.
 - `notebooks/`: análisis reproducibles realizados en Python.
 - `figuras/`: visualizaciones exportadas desde los notebooks.
 - `informe/` o `informes/`: fuentes LaTeX y PDF de cada entrega.
@@ -84,6 +91,23 @@ Validación interna de los resultados anteriores mediante:
 
 Los detalles se encuentran en [`fase-3/README.md`](fase-3/README.md).
 
+### Fase 4 - Sumativa 3
+
+Integración de las tres etapas del proyecto mediante regresión logística y evaluación fuera de muestra:
+
+- Comparación de eliminación de casos, imputación simple e imputación por regresión.
+- División estratificada 70/30, con preprocesamiento ajustado exclusivamente sobre entrenamiento.
+- Comparación de tres modelos logísticos mediante validación cruzada, área bajo la curva ROC (AUC) y criterios de parsimonia.
+- Selección del modelo M3 BIC con edad, cigarrillos diarios, presión sistólica, glucosa y sexo.
+- Evaluación en prueba mediante AUC, exactitud, sensibilidad, precisión, F1 y matriz de confusión.
+- Estabilidad de coeficientes mediante 1.000 remuestras bootstrap.
+- Diagnóstico de multicolinealidad, linealidad del logit, residuos e influencia.
+- Análisis de sensibilidad frente a la estrategia de imputación.
+
+El modelo final obtuvo AUC `0,7026`, sensibilidad `0,6010`, precisión `0,2479` y F1 `0,3510` en prueba. Estos resultados representan una capacidad de discriminación moderada y no autorizan el uso clínico directo del modelo.
+
+Los detalles se encuentran en [`fase-4/README.md`](fase-4/README.md).
+
 ## Estado del proyecto
 
 - [x] Repositorio y entorno virtual configurados.
@@ -92,7 +116,9 @@ Los detalles se encuentran en [`fase-3/README.md`](fase-3/README.md).
 - [x] Informe PDF de la Formativa 1.
 - [x] Sumativa 1: análisis exploratorio e inferencial, notebook e informe PDF.
 - [x] Sumativa 2: remuestreo, simulación, robustez, notebook e informe PDF.
-- [ ] Fase 4 y actividades posteriores.
+- [x] Sumativa 3: imputación, modelamiento predictivo, bootstrap, diagnósticos e informe técnico final.
+- [x] Integración de resultados de las fases 1, 2 y 3 del análisis.
+- [ ] Presentación y video final de la Sumativa 3.
 
 ## Entorno de trabajo
 
@@ -119,7 +145,7 @@ Para iniciar JupyterLab:
 jupyter lab
 ```
 
-Los notebooks deben ejecutarse desde la carpeta principal `C:\MCDI501-Framingham`, porque utilizan rutas relativas respecto de esa ubicación.
+Los notebooks deben ejecutarse desde la raíz del repositorio, porque utilizan rutas relativas respecto de esa ubicación.
 
 ## Elaboración de informes
 
@@ -130,11 +156,12 @@ Los informes se preparan en LaTeX utilizando las plantillas oficiales de la asig
 - El dataset original se conserva en `fase-1/datos/raw/`.
 - Las transformaciones se realizan sobre copias en memoria y no modifican el archivo original.
 - Los procedimientos, resultados e interpretaciones quedan documentados en notebooks ejecutados.
-- La Sumativa 2 utiliza la semilla `42` en sus procedimientos aleatorios.
+- Las Sumativas 2 y 3 utilizan la semilla `42` en sus procedimientos aleatorios.
+- En la Sumativa 3, la partición de prueba se mantiene separada del ajuste de imputadores, winsorización y escalamiento.
 - Las dependencias de Python están declaradas en `requirements.txt`.
 - Los archivos temporales, el entorno virtual y las credenciales están excluidos mediante `.gitignore`.
 
 ## Autor
 
 **Alexander Sepúlveda Ormazábal**  
-Magíster en Ciencia de Datos - Universidad Andrés Bello
+Magíster en Ciencia de Datos e Inteligencia Artificial - Universidad Andrés Bello
