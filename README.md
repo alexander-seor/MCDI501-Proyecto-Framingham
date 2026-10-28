@@ -52,6 +52,7 @@ MCDI501-Framingham/
 │   │   ├── informe/
 │   │   │   └── latex/
 │   │   ├── notebooks/
+│   │   ├── presentacion/
 │   │   └── resultados/
 │   └── README.md
 ├── .gitignore
@@ -103,6 +104,7 @@ Integración de las tres etapas del proyecto mediante regresión logística y ev
 - Estabilidad de coeficientes mediante 1.000 remuestras bootstrap.
 - Diagnóstico de multicolinealidad, linealidad del logit, residuos e influencia.
 - Análisis de sensibilidad frente a la estrategia de imputación.
+- Presentación final de diez diapositivas con guion y notas del presentador.
 
 El modelo final obtuvo AUC `0,7026`, sensibilidad `0,6010`, precisión `0,2479` y F1 `0,3510` en prueba. Estos resultados representan una capacidad de discriminación moderada y no autorizan el uso clínico directo del modelo.
 
@@ -118,7 +120,8 @@ Los detalles se encuentran en [`fase-4/README.md`](fase-4/README.md).
 - [x] Sumativa 2: remuestreo, simulación, robustez, notebook e informe PDF.
 - [x] Sumativa 3: imputación, modelamiento predictivo, bootstrap, diagnósticos e informe técnico final.
 - [x] Integración de resultados de las fases 1, 2 y 3 del análisis.
-- [ ] Presentación y video final de la Sumativa 3.
+- [x] Presentación final y guion de la Sumativa 3.
+- [ ] Video final de la Sumativa 3.
 
 ## Entorno de trabajo
 

@@ -12,6 +12,7 @@ El análisis es observacional y corresponde a una validación interna. Por tanto
 - `sumativa-3/figuras/`: cinco visualizaciones exportadas desde el notebook.
 - `sumativa-3/resultados/`: tablas CSV con métricas, coeficientes, intervalos y diagnósticos.
 - `sumativa-3/informe/`: informe técnico final en PDF y su fuente LaTeX.
+- `sumativa-3/presentacion/`: presentación final en PowerPoint y guion de exposición.
 
 ## Estructura
 
@@ -30,6 +31,9 @@ fase-4/
 │   │       └── main.tex
 │   ├── notebooks/
 │   │   └── sumativa_3_framingham.ipynb
+│   ├── presentacion/
+│   │   ├── presentacion_sumativa_3.pptx
+│   │   └── guion_presentacion.md
 │   └── resultados/
 │       ├── coeficientes_por_imputacion.csv
 │       ├── desempeno_regresiones_imputacion.csv
@@ -135,7 +139,9 @@ La ejecución completa utiliza la semilla `42`, regenera las cinco figuras y act
 - Diez tablas de resultados en formato CSV.
 - [Informe técnico final de ocho páginas en PDF](sumativa-3/informe/informe_final_sumativa_3.pdf).
 - Fuente LaTeX del informe.
-- Presentación y video final pendientes de elaboración.
+- [Presentación final en PowerPoint](sumativa-3/presentacion/presentacion_sumativa_3.pptx), con notas del presentador incorporadas.
+- [Guion de exposición](sumativa-3/presentacion/guion_presentacion.md), estimado para una presentación cercana a diez minutos.
+- Video final pendiente de grabación.
 
 ## Limitaciones
 
@@ -158,7 +164,7 @@ La ejecución completa utiliza la semilla `42`, regenera las cinco figuras y act
 - [x] Cinco figuras y diez tablas de resultados exportadas.
 - [x] Informe LaTeX compilado y PDF revisado.
 - [x] Resultados contrastados con el notebook y las fases anteriores.
-- [ ] Presentación final.
+- [x] Presentación final y guion revisados y contrastados con las cuatro fases.
 - [ ] Video de exposición.
 
 ## Autor
